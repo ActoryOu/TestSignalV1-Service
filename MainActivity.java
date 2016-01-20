@@ -49,6 +49,7 @@ public class MainActivity extends ActionBarActivity {
     //the variables here change by
     private LocationUpdater locationupdater;
 
+    private TrafficStatsGuard tsg;
 
     SimpleDateFormat sdf;
     Date LogDate;
@@ -110,6 +111,9 @@ public class MainActivity extends ActionBarActivity {
                 if( MainSetting.PhoneStateSwitch ){
                     ((TelephonyManager) getSystemService(TELEPHONY_SERVICE)).listen(pslistener, PSListener.LISTEN_CALL_STATE);
                 }
+                if( MainSetting.TrafficSwitch ){
+                    tsg.TaskStart();
+                }
             }
         });
         StopServiceButton.setOnClickListener(new Button.OnClickListener(){
@@ -117,6 +121,7 @@ public class MainActivity extends ActionBarActivity {
                 ((TelephonyManager) getSystemService(TELEPHONY_SERVICE)).listen(sslistener, SignalStrengthListener.LISTEN_NONE);
                 ((TelephonyManager) getSystemService(TELEPHONY_SERVICE)).listen(pslistener, PSListener.LISTEN_NONE);
                 SenseHandler.removeCallbacks(SenseAllCellRunnable);
+                tsg.TrafficStatsGuardFinish();
                 try {
                     filewriter.close();
                 } catch (IOException e) {
@@ -171,6 +176,8 @@ public class MainActivity extends ActionBarActivity {
         sdf = new SimpleDateFormat("yyyyMMddHHmm");
         LogTimesdf = new SimpleDateFormat("HH:mm:ss:SSS");
         AllCellInfo = null;
+
+        tsg = new TrafficStatsGuard();
     }
 
     private Runnable SenseAllCellRunnable = new Runnable() {

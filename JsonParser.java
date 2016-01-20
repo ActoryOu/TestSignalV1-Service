@@ -1,5 +1,7 @@
 package edu.nctu.wirelab.testsignalv1;
 
+import android.os.Build;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,13 +16,13 @@ public class JsonParser {
 
         try {
             obj.put("AppicationType", "Android");
-            obj.put("ApplicationVersion", 4.4);
+            obj.put("ApplicationVersion", Build.VERSION.RELEASE);
             obj.put("UploadAuthor", UploadAuthor);
             obj.put("UploadEmail", UploadEmail);
 
             JSONObject cellinfo = new JSONObject();
 
-            cellinfo.put("TimeStamp", 34);
+            cellinfo.put("TimeStamp", System.currentTimeMillis() );
             cellinfo.put("CellID", SignalStrengthListener.AtCellID);
             cellinfo.put("CellMCC", SignalStrengthListener.AtCellMCC);
             cellinfo.put("CellMNC", SignalStrengthListener.AtCellMNC);

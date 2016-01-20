@@ -9,12 +9,15 @@ public class ShowMsg extends ActionBarActivity {
     public static final String AtCellInfo = "AtCellInfo";
     public static final String PhoneState = "PhoneState";
     public static final String AllCellInfo = "AllCellInfo";
+    public static final String TrafficInfo = "TrafficInfo";
     private static TextView AtInfoContent;
     private static TextView PhoneStateContent;
     private static TextView AllCellInfoContent;
+    private static TextView TrafficContent;
     private static String AtInfoString = null;
     private static String PhoneStateString = null;
     private static String AllCellInfoString = null;
+    private static String TrafficString = null;
     private static boolean isLive = false;
 
     @Override
@@ -48,6 +51,7 @@ public class ShowMsg extends ActionBarActivity {
         if( AtInfoString!=null ) AtInfoContent.setText(AtInfoString);
         if( PhoneStateString!=null ) PhoneStateContent.setText(PhoneStateString);
         if( AllCellInfoString!=null ) AllCellInfoContent.setText(AllCellInfoString);
+        if( TrafficString!=null ) TrafficContent.setText(TrafficString);
     }
 
     public static void NoticeChange( String WhoKnock, String Msg ){
@@ -64,6 +68,10 @@ public class ShowMsg extends ActionBarActivity {
                 AllCellInfoString = Msg;
                 if( isLive ) AllCellInfoContent.setText(Msg);
                 break;
+            case TrafficInfo:
+                TrafficString = Msg;
+                if( isLive ) TrafficContent.setText(Msg);
+                break;
         }
     }
 
@@ -71,9 +79,11 @@ public class ShowMsg extends ActionBarActivity {
         AtInfoContent = (TextView)findViewById(R.id.AtInfoContent);
         PhoneStateContent = (TextView)findViewById(R.id.PhoneStateContent);
         AllCellInfoContent = (TextView)findViewById(R.id.AllCellInfoContent);
+        TrafficContent = (TextView)findViewById(R.id.TrafficContent);
         if( AtInfoString!=null ) AtInfoContent.setText(AtInfoString);
         if( PhoneStateString!=null ) PhoneStateContent.setText(PhoneStateString);
         if( AllCellInfoString!=null ) AllCellInfoContent.setText(AllCellInfoString);
+        if( TrafficString!=null ) TrafficContent.setText(TrafficString);
 
         AllCellInfoContent.setMovementMethod(new ScrollingMovementMethod());
     }

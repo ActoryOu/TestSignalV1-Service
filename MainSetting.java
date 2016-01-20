@@ -14,7 +14,7 @@ public class MainSetting extends ActionBarActivity {
     ListView list;
     private final String TagName = "MainSetting";
     private SparseBooleanArray tempchoice;
-    public static boolean AtInfoSwitch = true, NbtInfoSwitch = true, PhoneStateSwitch = true;
+    public static boolean AtInfoSwitch = true, NbtInfoSwitch = true, PhoneStateSwitch = true, TrafficSwitch = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +22,7 @@ public class MainSetting extends ActionBarActivity {
         setContentView(R.layout.activity_main_setting);
 
         list = (ListView) findViewById(R.id.list);
-        String[] liststr = new String[] { "Sense Attached Info", "Sense All Info", "Sense Phone State" };
+        String[] liststr = new String[] { "Sense Attached Info", "Sense All Info", "Sense Phone State", "Sense PS Traffic" };
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, android.R.id.text1, liststr);
 
         list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
@@ -30,6 +30,7 @@ public class MainSetting extends ActionBarActivity {
         list.setItemChecked(0, AtInfoSwitch);
         list.setItemChecked(1, NbtInfoSwitch);
         list.setItemChecked(2, PhoneStateSwitch);
+        list.setItemChecked(3, TrafficSwitch);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
@@ -51,6 +52,10 @@ public class MainSetting extends ActionBarActivity {
                         case 2:
                             if( tempchoice.get(i) ) PhoneStateSwitch = true;
                             else PhoneStateSwitch = false;
+                            break;
+                        case 3:
+                            if( tempchoice.get(i) ) TrafficSwitch = true;
+                            else TrafficSwitch = false;
                             break;
                     }
                 }

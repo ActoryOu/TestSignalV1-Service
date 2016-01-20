@@ -31,7 +31,6 @@ public class LocationUpdater implements LocationListener {
             String bestProvider = locationManager.getBestProvider(criteria, true);	//選擇精準度最高的提供者
             Location location = locationManager.getLastKnownLocation(bestProvider);
 
-            Log.d("temp", "HI");
             if( location!=null ) {
                 Log.d("temp", "Lat:" + location.getLatitude() + "  Lnt:" + location.getLongitude());
                 userlocation = location;
