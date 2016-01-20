@@ -17,6 +17,11 @@ public class SignalStrengthListener extends PhoneStateListener {
     public static int AtCellRSRP, AtCellID, AtCellMCC, AtCellMNC, AtCellPCI, AtCellTAC, AtCellRSSI, AtCellRSRQ;
     public static long AtCellTimeInterval;
 
+    public static int PassCellNum = 0;
+    public static int NowCellID = 0;
+    public static long StayCellAt = 0, CellHoldTime = 0;
+    public static double AvgCellResideTime = 0, AvgCellHoldTime;
+
     private Date LogTime;
     private SimpleDateFormat LogTimesdf = new SimpleDateFormat("HH:mm:ss:SSS");
 
@@ -106,6 +111,23 @@ public class SignalStrengthListener extends PhoneStateListener {
                     // Gets the LTE TAC: (returns 16-bit Tracking Area Code, Integer.MAX_VALUE if unknown)
                     AtCellTAC = ((CellInfoLte) cellInfo).getCellIdentity().getTac();
 
+                    if( AtCellID!=NowCellID ){
+                        Log.d(TagName, "Handover");
+                        NowCellID = AtCellID;
+                        PassCellNum = PassCellNum+1;
+                        if( StayCellAt==0 ){
+                            StayCellAt = curTestTime;
+                        }
+                        else{
+                            CellHoldTime = curTestTime - StayCellAt;
+                            AvgCellHoldTime = AvgCellHoldTime + (CellHoldTime/(PassCellNum-1));
+                            AvgCellResideTime = AvgCellResideTime + ((CellHoldTime - AvgCellResideTime)/(PassCellNum-1));
+                            StayCellAt = curTestTime;
+                        }
+                        if( MainSetting.PhoneStateSwitch )
+                            PSListener.HandoverOccur();
+                    }
+
                     Log.d(TagName, "RSRP:" + AtCellRSRP +
                             " cellID:" + AtCellID +
                             " cellMcc:" + AtCellMCC +
@@ -114,7 +136,7 @@ public class SignalStrengthListener extends PhoneStateListener {
                             " cellTac:" + AtCellTAC);
                     AtCellTimeInterval = curTestTime - preTestTime;
 
-                    Log.d(TagName, JsonParser.ParseToJson());
+                    Log.d(TagName, JsonParser.AtCellInfoToJson());
 
                     MainActivity.filewriter.write("Attached BS Info:\nLogTime(HH:mm:ss:SSS):" + LogTimesdf.format(LogTime) + "\n" +
                             "RSRP:" + AtCellRSRP + '\n' +

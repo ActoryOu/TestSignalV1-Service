@@ -1,32 +1,39 @@
 package edu.nctu.wirelab.testsignalv1;
 
 import android.net.TrafficStats;
-
-import java.util.Timer;
-import java.util.TimerTask;
+import android.os.Handler;
+import android.util.Log;
 
 public class TrafficStatsGuard extends TrafficStats {
+    private final String TagName = "TrafficStatsGuard";
     private String TrafficMsg;
-    private Timer timer;
+    private long initRxBytes, initTxBytes;
+    Handler TrafficHandler;
+
     private final int timerDelay = 3000;
 
     public TrafficStatsGuard(){
         super();
+        TrafficHandler = new Handler();
     }
     public void TaskStart(){
-        timer = new Timer();
-        timer.schedule(new TimerToNotify(), timerDelay, timerDelay);
+        TrafficHandler.post(SenseTrafficRunnable);
+        initRxBytes = getTotalRxBytes();
+        initTxBytes = getTotalTxBytes();
     }
     public void TrafficStatsGuardFinish(){
-        timer.cancel();
+        TrafficHandler.removeCallbacks(SenseTrafficRunnable);
     }
 
-    private class TimerToNotify extends TimerTask {
-        @ Override
+    private Runnable SenseTrafficRunnable = new Runnable() {
         public void run() {
             TrafficMsg = "getMobileRxBytes: "+getMobileRxBytes()+
-                    "\ngetMobileTxBytes: "+getMobileTxBytes();
+                    "\ngetMobileTxBytes: "+getMobileTxBytes()+
+                    "\ngetTotalRxBytes: "+getTotalRxBytes()+
+                    "\ngetTotalTxBytes: "+getTotalTxBytes();
+            //Log.d(TagName, TrafficMsg);
             ShowMsg.NoticeChange(ShowMsg.TrafficInfo, TrafficMsg);
+            TrafficHandler.postDelayed(SenseTrafficRunnable, timerDelay);
         }
-    }
+    };
 }

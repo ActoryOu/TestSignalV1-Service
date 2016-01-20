@@ -31,7 +31,7 @@ public class MainActivity extends ActionBarActivity {
     private Button SettingButton, StartServiceButton, StopServiceButton, ShowMsgButton, SignalMapButton;
     private static String LOGPATH;
     private static String LogPrefix;
-    private static TelephonyManager tm;
+    public static TelephonyManager tm;
     //the variables here change by SignalStrengthListener
     private SignalStrengthListener sslistener;
     //the variables here change by SignalStrengthListener
@@ -98,6 +98,8 @@ public class MainActivity extends ActionBarActivity {
                         }
                     }
                     filewriter = new FileWriter(LOGPATH+FilePrefix, true);
+
+                    initSomeVar();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -122,6 +124,11 @@ public class MainActivity extends ActionBarActivity {
                 ((TelephonyManager) getSystemService(TELEPHONY_SERVICE)).listen(pslistener, PSListener.LISTEN_NONE);
                 SenseHandler.removeCallbacks(SenseAllCellRunnable);
                 tsg.TrafficStatsGuardFinish();
+
+                //write the avg value to the file
+                Log.d(TagName, JsonParser.CallInfoToJson());
+                //filewriter.write();
+
                 try {
                     filewriter.close();
                 } catch (IOException e) {
@@ -141,6 +148,23 @@ public class MainActivity extends ActionBarActivity {
         if( !locationupdater.isOpenGps() ){
             ShowGPSClosedMsg();
         }
+    }
+
+    private void initSomeVar() {
+        SignalStrengthListener.AtCellID = 0;
+        SignalStrengthListener.PassCellNum = 0;
+        SignalStrengthListener.StayCellAt = 0;
+        SignalStrengthListener.AvgCellResideTime = 0;
+        SignalStrengthListener.CellHoldTime = 0;
+        SignalStrengthListener.AvgCellHoldTime = 0;
+
+        PSListener.CallNum = 0;
+        PSListener.CallExcessNum = 0;
+        PSListener.CallStartAt = 0;
+        PSListener.CallStayCellAt = 0;
+        PSListener.AvgCallHoldTime = 0;
+        PSListener.AvgExcessLife = 0;
+        PSListener.FirstCallCell = false;
     }
 
     public void ShowGPSClosedMsg(){
