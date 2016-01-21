@@ -137,7 +137,7 @@ public class SignalStrengthListener extends PhoneStateListener {
                     AtCellTimeInterval = curTestTime - preTestTime;
 
                     //Log.d(TagName, JsonParser.AtCellInfoToJson());
-                    MainActivity.recordwriter.write(JsonParser.AtCellInfoToJson() + "\n");
+                    MainActivity.recordwriter.write(JsonParser.AtCellInfoToJson() + "\n\n");
 
                     MainActivity.filewriter.write("Attached BS Info:\nLogTime(HH:mm:ss:SSS):" + LogTimesdf.format(LogTime) + "\n" +
                             "RSRP:" + AtCellRSRP + '\n' +

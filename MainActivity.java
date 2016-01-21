@@ -131,7 +131,7 @@ public class MainActivity extends ActionBarActivity {
                 try {
                     //write the avg value to the file
                     //Log.d(TagName, JsonParser.CallInfoToJson());
-                    recordwriter.write(JsonParser.CallInfoToJson() + "\n");
+                    recordwriter.write(JsonParser.CallInfoToJson() + "\n\n");
 
                     filewriter.close();
                     recordwriter.close();
