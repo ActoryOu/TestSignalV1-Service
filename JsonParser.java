@@ -36,11 +36,11 @@ public class JsonParser {
             ary.put(cellinfo);
 
             obj.put("CellularInfo", ary);
+            return obj.toString(2);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        return obj.toString();
+        return null;
     }
 
     public static String TrafficInfoToJson(){
@@ -53,12 +53,11 @@ public class JsonParser {
             obj.put("UploadEmail", UploadEmail);
             obj.put("IMEI", MainActivity.tm.getDeviceId());
 
-
+            return obj.toString(2);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        return obj.toString();
+        return null;
     }
 
     public static String CallInfoToJson(){
@@ -75,11 +74,12 @@ public class JsonParser {
             obj.put("HoldTime", SignalStrengthListener.AvgCellHoldTime);
             obj.put("ResideTime", SignalStrengthListener.AvgCellResideTime);
             obj.put("ExcessLife", PSListener.AvgExcessLife);
-            obj.put("CS/PS", "CS");
+            obj.put("CSPS", "CS");
+
+            return obj.toString(2);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        return obj.toString();
+        return null;
     }
 }

@@ -30,7 +30,7 @@ public class MainActivity extends ActionBarActivity {
     private TextView LogPathContent;
     private Button SettingButton, StartServiceButton, StopServiceButton, ShowMsgButton, SignalMapButton;
     private static String LOGPATH;
-    private static String LogPrefix;
+    private static String LogPrefix, RecordPrefix;
     public static TelephonyManager tm;
     //the variables here change by SignalStrengthListener
     private SignalStrengthListener sslistener;
@@ -54,6 +54,7 @@ public class MainActivity extends ActionBarActivity {
     SimpleDateFormat sdf;
     Date LogDate;
     public static FileWriter filewriter;
+    public static FileWriter recordwriter;
     public static File file;
 
     Date LogTime;
@@ -88,9 +89,10 @@ public class MainActivity extends ActionBarActivity {
                 try {
                     LogTime = null;
                     LogDate = new Date();
-                    String FilePrefix;
+                    String FilePrefix, RecordFilePrefix;
                     FilePrefix = LogPrefix.concat( (sdf.format(LogDate))+".txt");
-                    Log.d(TagName, "FilePrefix:"+FilePrefix);
+                    RecordFilePrefix = RecordPrefix.concat((sdf.format(LogDate))+".txt");
+                    Log.d(TagName, "FilePrefix:"+FilePrefix+" RecordFilePrefix:"+RecordFilePrefix);
                     file = new File(LOGPATH);
                     if(!file.exists()){
                         if( file.mkdir() ){
@@ -98,6 +100,7 @@ public class MainActivity extends ActionBarActivity {
                         }
                     }
                     filewriter = new FileWriter(LOGPATH+FilePrefix, true);
+                    recordwriter = new FileWriter(LOGPATH+RecordFilePrefix, true);
 
                     initSomeVar();
                 } catch (IOException e) {
@@ -125,12 +128,13 @@ public class MainActivity extends ActionBarActivity {
                 SenseHandler.removeCallbacks(SenseAllCellRunnable);
                 tsg.TrafficStatsGuardFinish();
 
-                //write the avg value to the file
-                Log.d(TagName, JsonParser.CallInfoToJson());
-                //filewriter.write();
-
                 try {
+                    //write the avg value to the file
+                    //Log.d(TagName, JsonParser.CallInfoToJson());
+                    recordwriter.write(JsonParser.CallInfoToJson() + "\n");
+
                     filewriter.close();
+                    recordwriter.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -197,6 +201,7 @@ public class MainActivity extends ActionBarActivity {
         SenseHandler = new Handler();
 
         LogPrefix = new String("NCTU");
+        RecordPrefix = new String("RECORD");
         sdf = new SimpleDateFormat("yyyyMMddHHmm");
         LogTimesdf = new SimpleDateFormat("HH:mm:ss:SSS");
         AllCellInfo = null;
