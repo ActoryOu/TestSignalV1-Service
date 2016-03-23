@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="edu.nctu.wirelab.testsignalv1.SignUpSignIn">
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <RelativeLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            <TextView
+                android:id="@+id/EmailTextView"
+                android:text="*Email: "
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize = "24sp" />
+            <EditText
+                android:id="@+id/EmailEditText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="example: wirelab@gmail.com"
+                android:digits="0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM@_."
+                android:maxLength="50"
+                android:layout_toRightOf="@+id/EmailTextView"
+                android:textSize = "18sp" />
+
+            <TextView
+                android:id="@+id/UserNameTextView"
+                android:text="*UserName: "
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/EmailEditText"
+                android:textSize = "24sp" />
+            <EditText
+                android:id="@+id/UserNameEditText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:digits="0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_"
+                android:maxLength="20"
+                android:hint="User name"
+                android:layout_toRightOf="@+id/UserNameTextView"
+                android:layout_below="@+id/EmailEditText"
+                android:textSize = "18sp" />
+
+            <TextView
+                android:id="@+id/PwdTextView"
+                android:text="*Pwd: "
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/UserNameEditText"
+                android:textSize = "24sp" />
+            <EditText
+                android:id="@+id/PwdEditText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="6-18 digits"
+                android:digits="0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
+                android:maxLength="18"
+                android:password="true"
+                android:layout_toRightOf="@+id/PwdTextView"
+                android:layout_below="@+id/UserNameEditText"
+                android:textSize = "18sp" />
+
+            <TextView
+                android:id="@+id/PwdConfirmationTextView"
+                android:text="*Pwd: "
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/PwdEditText"
+                android:textSize = "24sp" />
+            <EditText
+                android:id="@+id/PwdConfirmationEditText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Confirmation"
+                android:digits="0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
+                android:maxLength="18"
+                android:password="true"
+                android:layout_toRightOf="@+id/PwdConfirmationTextView"
+                android:layout_below="@+id/PwdEditText"
+                android:textSize = "18sp" />
+
+            <TextView
+                android:id="@+id/SexTextView"
+                android:text="Sex: "
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/PwdConfirmationEditText"
+                android:textSize = "24sp" />
+            <EditText
+                android:id="@+id/SexEditText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Male/Female"
+                android:digits="0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
+                android:maxLength="20"
+                android:layout_toRightOf="@+id/SexTextView"
+                android:layout_below="@+id/PwdConfirmationEditText"
+                android:textSize = "18sp" />
+
+            <TextView
+                android:id="@+id/LocationTextView"
+                android:text="Location: "
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/SexEditText"
+                android:textSize = "24sp" />
+            <EditText
+                android:id="@+id/LocationEditText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="ex: USA/NewYork"
+                android:digits="0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM/"
+                android:maxLength="20"
+                android:layout_toRightOf="@+id/LocationTextView"
+                android:layout_below="@+id/SexEditText"
+                android:textSize = "18sp" />
+
+            <TextView
+                android:id="@+id/CareerTextView"
+                android:text="Career: "
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/LocationEditText"
+                android:textSize = "24sp" />
+            <EditText
+                android:id="@+id/CareerEditText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="ex: Student"
+                android:digits="0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM/"
+                android:maxLength="20"
+                android:layout_toRightOf="@+id/CareerTextView"
+                android:layout_below="@+id/LocationEditText"
+                android:textSize = "18sp" />
+
+            <Button
+                android:id="@+id/RegisterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Register"
+                android:layout_below="@+id/CareerEditText"
+                />
+            <Button
+                android:id="@+id/LoginButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Login"
+                android:layout_alignBaseline="@+id/RegisterButton"
+                android:layout_toRightOf="@+id/RegisterButton"
+                />
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

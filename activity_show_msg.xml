@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="edu.nctu.wirelab.testsignalv1.ShowMsg">
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            <TextView
+                android:id="@+id/AtInfoText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Attached BS Info:" />
+            <TextView
+                android:id="@+id/AtInfoContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/AtInfoText"
+                android:text="AtInfoContent" />
+
+            <TextView
+                android:id="@+id/PhoneStateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phone State Info:"
+                android:layout_below="@+id/AtInfoContent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="20dp" />
+            <TextView
+                android:id="@+id/PhoneStateContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PhoneStateContent"
+                android:layout_toRightOf="@+id/PhoneStateText"
+                android:layout_below="@+id/AtInfoContent"/>
+
+            <TextView
+                android:id="@+id/TafficText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Traffic Info:"
+                android:layout_below="@+id/PhoneStateContent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="20dp" />
+            <TextView
+                android:id="@+id/TrafficContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Traffic Content"
+                android:layout_below="@+id/TafficText" />
+
+            <TextView
+                android:id="@+id/AllCellInfoText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All Cell Info:"
+                android:layout_below="@+id/TrafficContent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="20dp" />
+            <TextView
+                android:id="@+id/AllCellInfoContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All Cell Content"
+                android:layout_below="@+id/AllCellInfoText" />
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/UserNameEditText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:maxLength="20"
+        android:digits="0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_"
+        android:hint="User Name"/>
+    <EditText
+        android:id="@+id/PwdEditText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:maxLength="20"
+        android:password="true"
+        android:digits="0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
+        android:hint="Pwd"/>
+</LinearLayout>
