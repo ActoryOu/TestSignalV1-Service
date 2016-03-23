@@ -10,8 +10,6 @@ public class TrafficStatsGuard extends TrafficStats {
     private long initRxBytes, initTxBytes;
     Handler TrafficHandler;
 
-    private final int timerDelay = 3000;
-
     public TrafficStatsGuard(){
         super();
         TrafficHandler = new Handler();
@@ -33,7 +31,7 @@ public class TrafficStatsGuard extends TrafficStats {
                     "\ngetTotalTxBytes: "+getTotalTxBytes();
             //Log.d(TagName, TrafficMsg);
             ShowMsg.NoticeChange(ShowMsg.TrafficInfo, TrafficMsg);
-            TrafficHandler.postDelayed(SenseTrafficRunnable, timerDelay);
+            TrafficHandler.postDelayed(SenseTrafficRunnable, MainActivity.FlashInterval);
         }
     };
 }

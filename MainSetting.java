@@ -8,20 +8,37 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class MainSetting extends ActionBarActivity {
     ListView list;
     private final String TagName = "MainSetting";
     private SparseBooleanArray tempchoice;
     public static boolean AtInfoSwitch = true, NbtInfoSwitch = true, PhoneStateSwitch = true, TrafficSwitch = true;
+    private static boolean TempAtInfoSwitch = true, TempNbtInfoSwitch = true, TempPhoneStateSwitch = true, TempTrafficSwitch = true;
+    private EditText LogPrefixEditText, IntervalEditText;
+    private Button ConfirmButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_setting);
 
+        LogPrefixEditText = (EditText) findViewById(R.id.LogPrefixEditText);
+        IntervalEditText = (EditText) findViewById(R.id.IntervalEditText);
+        ConfirmButton = (Button) findViewById(R.id.ConfirmButton);
         list = (ListView) findViewById(R.id.list);
+
+        TempAtInfoSwitch = AtInfoSwitch;
+        TempNbtInfoSwitch = NbtInfoSwitch;
+        TempPhoneStateSwitch = PhoneStateSwitch;
+        TempTrafficSwitch = TrafficSwitch;
+        IntervalEditText.setText(String.valueOf(MainActivity.FlashInterval), TextView.BufferType.EDITABLE);
+        LogPrefixEditText.setText(MainActivity.RecordPrefix, TextView.BufferType.EDITABLE);
+
         String[] liststr = new String[] { "Sense Attached Info", "Sense All Info", "Sense Phone State", "Sense PS Traffic" };
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, android.R.id.text1, liststr);
 
@@ -40,25 +57,48 @@ public class MainSetting extends ActionBarActivity {
                 for (int i = 0; i < tempchoice.size(); i++) {
                     //Log.d(TagName, "i:"+i+" get(i):"+tempchoice.get(i)+" keyat(i):"+tempchoice.keyAt(i));
                     int key = tempchoice.keyAt(i);
-                    switch(key){
+                    switch (key) {
                         case 0:
-                            if( tempchoice.get(i) ) AtInfoSwitch = true;
-                            else AtInfoSwitch = false;
+                            if (tempchoice.get(i)) TempAtInfoSwitch = true;
+                            else TempAtInfoSwitch = false;
                             break;
                         case 1:
-                            if( tempchoice.get(i) ) NbtInfoSwitch = true;
-                            else NbtInfoSwitch = false;
+                            if (tempchoice.get(i)) TempNbtInfoSwitch = true;
+                            else TempNbtInfoSwitch = false;
                             break;
                         case 2:
-                            if( tempchoice.get(i) ) PhoneStateSwitch = true;
-                            else PhoneStateSwitch = false;
+                            if (tempchoice.get(i)) TempPhoneStateSwitch = true;
+                            else TempPhoneStateSwitch = false;
                             break;
                         case 3:
-                            if( tempchoice.get(i) ) TrafficSwitch = true;
-                            else TrafficSwitch = false;
+                            if (tempchoice.get(i)) TempTrafficSwitch = true;
+                            else TempTrafficSwitch = false;
                             break;
                     }
                 }
+            }
+        });
+
+        ConfirmButton.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                String inputInterval = IntervalEditText.getText().toString();
+                if( !inputInterval.isEmpty() ) {
+//                    Log.d(TagName, "inputInterval:"+inputInterval);
+                    MainActivity.FlashInterval = Integer.valueOf(inputInterval);
+                }
+
+                String LogPrefix = LogPrefixEditText.getText().toString();
+                if( !LogPrefix.isEmpty() ) {
+//                    Log.d(TagName, "LogPrefix:"+LogPrefix);
+                    MainActivity.RecordPrefix = LogPrefix;
+                }
+
+                AtInfoSwitch = TempAtInfoSwitch;
+                NbtInfoSwitch = TempNbtInfoSwitch;
+                PhoneStateSwitch = TempPhoneStateSwitch;
+                TrafficSwitch = TempTrafficSwitch;
+
+                onBackPressed();
             }
         });
     }

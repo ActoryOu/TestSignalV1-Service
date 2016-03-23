@@ -5,60 +5,42 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
-import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class MainActivity extends ActionBarActivity {
     private final String TagName = "MainActivity";
     private TextView LogPathContent;
-    private Button SettingButton, StartServiceButton, StopServiceButton, ShowMsgButton, SignalMapButton;
-    private static String LOGPATH;
-    private static String LogPrefix, RecordPrefix;
+    private Button SettingButton, StartServiceButton, StopServiceButton, ShowMsgButton, SignalMapButton, UploadButton, RemoveLogsButton, ImportKeyButton, SignInSIgnUpButton;
+    public static String LOGPATH, configPath;
+    public static String LogPrefix, RecordPrefix;
     public static TelephonyManager tm;
-    //the variables here change by SignalStrengthListener
-    private SignalStrengthListener sslistener;
-    //the variables here change by SignalStrengthListener
+    public static long StartServiceTime;
 
-    //the variables here change by PSListener(inherit from PhoneStateListener)
-    private PSListener pslistener;
-    //the variables here change by PSListener(inherit from PhoneStateListener)
+    //a delay control all the sense info delay, such as all cell info, location update, traffic throughput
+    public static int FlashInterval = 1000; //in ms
 
-    //the variables here change by Runnable "SenseAllCellRunnable"
-    private Handler SenseHandler;
-    private final int FlashInterval = 3000; //sense the cell info every 3 seconds
-    public static String AllCellInfo;
-    //the variables here change by Runnable "SenseAllCellRunnable"
+    private LocationUpdater lu;
 
-    //the variables here change by
-    private LocationUpdater locationupdater;
+    //the traffic monitor that monitors all apps data usage
+    public static TrafficSnapshot latest, previous;
 
-    private TrafficStatsGuard tsg;
-
-    SimpleDateFormat sdf;
-    Date LogDate;
-    public static FileWriter filewriter;
-    public static FileWriter recordwriter;
-    public static File file;
-
-    Date LogTime;
-    SimpleDateFormat LogTimesdf;
+    //the cypher for signing the data that is used to upload to server
+    public static OutCypher moutcypher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,56 +68,42 @@ public class MainActivity extends ActionBarActivity {
         });
         StartServiceButton.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v){
-                try {
-                    LogTime = null;
-                    LogDate = new Date();
-                    String FilePrefix, RecordFilePrefix;
-                    FilePrefix = LogPrefix.concat( (sdf.format(LogDate))+".txt");
-                    RecordFilePrefix = RecordPrefix.concat((sdf.format(LogDate))+".txt");
-                    Log.d(TagName, "FilePrefix:"+FilePrefix+" RecordFilePrefix:"+RecordFilePrefix);
-                    file = new File(LOGPATH);
-                    if(!file.exists()){
-                        if( file.mkdir() ){
-                            Log.d(TagName, "create logs dir");
-                        }
+                if( RunIntentService2.RunFlag==false ){
+                    initBfRun();
+
+                    lu = new LocationUpdater(MainActivity.this);
+                    if( !lu.isOpenGps() ){
+                        ShowGPSClosedMsg();
                     }
-                    filewriter = new FileWriter(LOGPATH+FilePrefix, true);
-                    recordwriter = new FileWriter(LOGPATH+RecordFilePrefix, true);
-
-                    initSomeVar();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                if( MainSetting.AtInfoSwitch ){
-                    ((TelephonyManager) getSystemService(TELEPHONY_SERVICE)).listen(sslistener, SignalStrengthListener.LISTEN_SIGNAL_STRENGTHS);
-                }
-                if( MainSetting.NbtInfoSwitch ){
-                    SenseHandler.post(SenseAllCellRunnable);
-                }
-                if( MainSetting.PhoneStateSwitch ){
-                    ((TelephonyManager) getSystemService(TELEPHONY_SERVICE)).listen(pslistener, PSListener.LISTEN_CALL_STATE);
-                }
-                if( MainSetting.TrafficSwitch ){
-                    tsg.TaskStart();
+                    lu = null;
+                    RunIntentService2.RunFlag = true;
+                    startService(new Intent(MainActivity.this, RunIntentService2.class));
                 }
             }
         });
         StopServiceButton.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v){
-                ((TelephonyManager) getSystemService(TELEPHONY_SERVICE)).listen(sslistener, SignalStrengthListener.LISTEN_NONE);
-                ((TelephonyManager) getSystemService(TELEPHONY_SERVICE)).listen(pslistener, PSListener.LISTEN_NONE);
-                SenseHandler.removeCallbacks(SenseAllCellRunnable);
-                tsg.TrafficStatsGuardFinish();
-
                 try {
+                    //calculate the Avg values
+                    SignalStrengthListener.CalculateAvg();
+                    PSListener.CalculateAvg();
+                    latest = new TrafficSnapshot(MainActivity.this);
+                    latest.CalculateUsage(previous);
                     //write the avg value to the file
                     //Log.d(TagName, JsonParser.CallInfoToJson());
-                    recordwriter.write(JsonParser.CallInfoToJson() + "\n\n");
+                    if( RunIntentService2.recordwriter!=null ){
+                        RunIntentService2.recordwriter.write(JsonParser.AppsInfoToJson() + "\n]\n");
+                        RunIntentService2.recordwriter.close();
+                        RunIntentService2.recordwriter = null;
 
-                    filewriter.close();
-                    recordwriter.close();
+                        //get the signature of the data and write it to the file "file.sig"
+                        moutcypher.openAndWriteFileInBytes(moutcypher.SignString( BrowseFile.getStringFromFile(RunIntentService2.RecordFileSheerPath) ) , RunIntentService2.RecordFileSheerPath+".sig" );
+                    }
+
+                    RunIntentService2.RunFlag = false;
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -148,39 +116,46 @@ public class MainActivity extends ActionBarActivity {
                 startActivity(intent);
             }
         });
+        ImportKeyButton.setOnClickListener(new Button.OnClickListener(){
+            public void onClick(View v){
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this, ImportKey.class);
 
-        if( !locationupdater.isOpenGps() ){
-            ShowGPSClosedMsg();
-        }
+                startActivity(intent);
+            }
+        });
+        UploadButton.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                FTPController ftpcontroller = new FTPController();
+                ftpcontroller.execute();
+            }
+        });
+        RemoveLogsButton.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                FTPController ftpcontroller = new FTPController();
+                ftpcontroller.removeFolder(MainActivity.LOGPATH);
+            }
+        });
+
+        SignInSIgnUpButton.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this, SignUpSignIn.class);
+
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
-    private void initSomeVar() {
-        SignalStrengthListener.AtCellID = 0;
-        SignalStrengthListener.PassCellNum = 0;
-        SignalStrengthListener.StayCellAt = 0;
-        SignalStrengthListener.AvgCellResideTime = 0;
-        SignalStrengthListener.CellHoldTime = 0;
-        SignalStrengthListener.AvgCellHoldTime = 0;
+    private void initBfRun() {
+        JsonParser.FileFirstWrite = true;
 
-        PSListener.CallNum = 0;
-        PSListener.CallExcessNum = 0;
-        PSListener.CallStartAt = 0;
-        PSListener.CallStayCellAt = 0;
-        PSListener.AvgCallHoldTime = 0;
-        PSListener.AvgExcessLife = 0;
-        PSListener.FirstCallCell = false;
-    }
+        previous = null;
+        previous = new TrafficSnapshot(this);
+        latest = null;
 
-    public void ShowGPSClosedMsg(){
-        AlertDialog alertDialog = new AlertDialog.Builder(this).setTitle("GPS Checker")
-                .setMessage("Please Turn Your GPS Service on")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        if( !locationupdater.isOpenGps() ){
-                            ShowGPSClosedMsg();
-                        }
-                    }
-                }).show();
+        StartServiceTime = System.currentTimeMillis();
     }
 
     public void initVar(){
@@ -190,57 +165,26 @@ public class MainActivity extends ActionBarActivity {
         StopServiceButton = (Button)findViewById(R.id.StopServiceButton);
         ShowMsgButton = (Button)findViewById(R.id.ShowMsgButton);
         SignalMapButton = (Button)findViewById(R.id.SignalMapButton);
+        UploadButton = (Button)findViewById(R.id.UploadButton);
+        RemoveLogsButton = (Button)findViewById(R.id.RemoveLogsButton);
+        ImportKeyButton = (Button)findViewById(R.id.ImportKeyButton);
+        SignInSIgnUpButton = (Button)findViewById(R.id.SignInSIgnUpButton);
 
         LOGPATH = new String("/data/data/" + getPackageName()) + "/logs/";
+        configPath = "/data/data/" + getPackageName() + "/config";
+        if( AddressConfig.LoadConfigFrom(configPath)==false ){
+            AddressConfig.SetUserName("DefaultUser");
+        }
+        JsonParser.SetAccount(AddressConfig.myUserName);
 
         tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        sslistener = new SignalStrengthListener();
-        pslistener = new PSListener();
-        locationupdater = new LocationUpdater( (LocationManager)getSystemService(Context.LOCATION_SERVICE) );
-
-        SenseHandler = new Handler();
 
         LogPrefix = new String("NCTU");
         RecordPrefix = new String("RECORD");
-        sdf = new SimpleDateFormat("yyyyMMddHHmm");
-        LogTimesdf = new SimpleDateFormat("HH:mm:ss:SSS");
-        AllCellInfo = null;
 
-        tsg = new TrafficStatsGuard();
+        moutcypher = new OutCypher();
+        ShowDialogMsg.mcontext = getApplicationContext();
     }
-
-    private Runnable SenseAllCellRunnable = new Runnable() {
-        public void run(){
-            LogTime = null;
-            LogTime = new Date();
-            //Log.d(TagName, "SenseAllCellRunnable");
-            List<CellInfo> cellInfoList;
-            cellInfoList = tm.getAllCellInfo();
-            AllCellInfo = null;
-            AllCellInfo = "";
-
-            for (CellInfo cellInfo : cellInfoList) {
-                String onecellinfo = cellInfo.toString();
-                //Log.d(TagName, "onecellinfo:"+onecellinfo);
-                String[] cellinfoparts = onecellinfo.split(" ");
-                for( String str:cellinfoparts ){
-                    AllCellInfo = AllCellInfo.concat(str + "\n");
-                }
-                AllCellInfo = AllCellInfo.concat("\n");
-            }
-            try {
-                filewriter.write("All Cell Info:\n" + "LogTime(HH:mm:ss:SSS):" + LogTimesdf.format(LogTime) + "\n" + AllCellInfo + "---------------------------------------------------------\n\n");
-
-                //Log.d(TagName, "AllCellInfo:" + AllCellInfo);
-                //ask ShowMsg to change the ViewText
-                ShowMsg.NoticeChange(ShowMsg.AllCellInfo, AllCellInfo);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            SenseHandler.postDelayed(SenseAllCellRunnable, FlashInterval);
-        }
-    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -267,4 +211,17 @@ public class MainActivity extends ActionBarActivity {
     public static TelephonyManager getTelephonyManager(){
         return tm;
     }
+
+    public void ShowGPSClosedMsg(){
+        AlertDialog alertDialog = new AlertDialog.Builder(this).setTitle("GPS Checker")
+                .setMessage("Please Turn Your GPS Service on")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (!lu.isOpenGps()) {
+                            ShowGPSClosedMsg();
+                        }
+                    }
+                }).show();
+    }
+
 }

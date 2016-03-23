@@ -1,21 +1,25 @@
 package edu.nctu.wirelab.testsignalv1;
 
+import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 
-/**
- * Created by Actory on 2016/1/13.
- */
-public class LocationUpdater implements LocationListener {
-    private LocationManager locationManager;
-    public static Location userlocation;
+import java.io.IOException;
 
-    public LocationUpdater(LocationManager lm){
-        locationManager = lm;
+public class LocationUpdater implements LocationListener {
+    private final Context mContext;
+    private static final String TagName = "LocationUpdater";
+    private static LocationManager locationManager;
+    public static Location userlocation = null;
+
+    public LocationUpdater(Context context){
+        mContext = context;
+        locationManager = (LocationManager)mContext.getSystemService(mContext.LOCATION_SERVICE);
         userlocation = null;
     }
 
@@ -25,27 +29,53 @@ public class LocationUpdater implements LocationListener {
         // get the location by WLAN or mobile network. It's usually used at the place which is more hidden.
         //boolean network = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         if (gps) {
-            //locationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER,2000,10, this);
-
-            Criteria criteria = new Criteria();	//資訊提供者選取標準
-            String bestProvider = locationManager.getBestProvider(criteria, true);	//選擇精準度最高的提供者
-            Location location = locationManager.getLastKnownLocation(bestProvider);
-
-            if( location!=null ) {
-                Log.d("temp", "Lat:" + location.getLatitude() + "  Lnt:" + location.getLongitude());
-                userlocation = location;
-                locationManager.requestLocationUpdates( locationManager.GPS_PROVIDER,2000,10, this);
-            }
             return true;
         }
         return false;
     }
 
+    public void startGPS(){
+//        Criteria criteria = new Criteria();	//資訊提供者選取標準
+//        String bestProvider = locationManager.getBestProvider(criteria, true);	//選擇精準度最高的提供者
+//        Log.d(TagName, "BestProvider:"+bestProvider+"  GPS_PROVIDER:"+LocationManager.GPS_PROVIDER);
+//        userlocation = locationManager.getLastKnownLocation(bestProvider);
+        userlocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+        if( userlocation==null ){
+            Log.d(TagName, "getLastKnownLocation: null");
+        }
+        else{
+            Log.d(TagName, "getLastKnownLocation: Lat-"+userlocation.getLatitude()+", Lng-"+userlocation.getLongitude());
+        }
+
+        //getMainLooper() is used for updating the location by service
+        locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, LocationUpdater.this, Looper.getMainLooper()); //(name of provider, minimum time interval, minDistance(m), listener, mainlooper)
+    }
+
+    public void stopGPS(){
+        locationManager.removeUpdates(LocationUpdater.this);
+    }
+
     @Override
     public void onLocationChanged(Location location){
-        Log.d("temp", "LOCATION UPDATE");
+        //Log.d("temp", "LOCATION UPDATE");
         //userlocation = new Location(location);
-        userlocation.set(location);
+        Log.d(TagName, "onLocationChanged");
+//        userlocation = new Location(location);
+        if( userlocation==null )
+            userlocation = new Location(location);
+        else
+            userlocation.set(location);
+
+//        try {
+//            if( RunIntentService2.filewriter!=null ){
+//                RunIntentService2.filewriter.write("Lat: " + location.getLatitude() + "Long: " + location.getLongitude() + "\n");
+//                RunIntentService2.filewriter.write("time: " + System.currentTimeMillis() + "\n\n" );
+//                RunIntentService2.filewriter.write("---------------------------------------------------------\n\n" );
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
